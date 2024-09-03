@@ -2,15 +2,18 @@ import 'package:cuidapet_my_api/application/config/database_connection_configura
 import 'package:cuidapet_my_api/application/config/service_locator_config.dart';
 import 'package:cuidapet_my_api/application/logger/i_logger.dart';
 import 'package:cuidapet_my_api/application/logger/i_logger_impl.dart';
+import 'package:cuidapet_my_api/application/routers/router_configure.dart';
 import 'package:dotenv/dotenv.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shelf_router/shelf_router.dart';
 
 class ApplicationConfig {
-  Future<void> loadConfigApplication() async {
+  Future<void> loadConfigApplication(Router router) async {
     var env = _loadEnv();
     _loadDatabaseConfig(env);
     _configLogger();
     _loadDependencies();
+    _loadRoutersConfigure(router);
   }
 
   DotEnv _loadEnv() => DotEnv(includePlatformEnvironment: true)..load();
@@ -30,4 +33,7 @@ class ApplicationConfig {
       GetIt.I.registerLazySingleton<ILogger>(() => ILoggerImpl());
 
   void _loadDependencies() => configureDependencies();
+
+  void _loadRoutersConfigure(Router router) =>
+      RouterConfigure(router).configure();
 }

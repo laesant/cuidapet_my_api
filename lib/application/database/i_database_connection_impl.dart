@@ -1,8 +1,10 @@
 import 'package:cuidapet_my_api/application/config/database_connection_configuration.dart';
+import 'package:injectable/injectable.dart';
 import 'package:mysql1/mysql1.dart';
 
 import './i_database_connection.dart';
 
+@LazySingleton(as: IDatabaseConnection)
 class IDatabaseConnectionImpl implements IDatabaseConnection {
   final DatabaseConnectionConfiguration _configuration;
 

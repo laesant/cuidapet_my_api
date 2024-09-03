@@ -12,7 +12,7 @@ class TesteController {
       jsonEncode(
         {"message": "Hello, Laênio Marques!"},
       ),
-      headers: {'content-type': 'application/json'},
+     
     );
   }
 

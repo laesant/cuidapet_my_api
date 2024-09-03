@@ -438,6 +438,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.4"
+  shelf_router_generator:
+    dependency: "direct dev"
+    description:
+      name: shelf_router_generator
+      sha256: dce5ad77c5db0271ffcc282ced6b106145c8f953e83f5074a13a07811c818793
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   shelf_static:
     dependency: transitive
     description:

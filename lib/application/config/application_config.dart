@@ -8,8 +8,9 @@ import 'package:get_it/get_it.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 class ApplicationConfig {
+  static late final DotEnv env;
   Future<void> loadConfigApplication(Router router) async {
-    var env = _loadEnv();
+    env = _loadEnv();
     _loadDatabaseConfig(env);
     _configLogger();
     _loadDependencies();

@@ -3,4 +3,6 @@ import 'package:cuidapet_my_api/modules/user/view_models/user_save_input_model.d
 
 abstract interface class IUserService {
   Future<User> createUser(UserSaveInputModel user);
+  Future<User> loginWithEmailAndPassword(
+      String email, String password, bool supplierUser);
 }

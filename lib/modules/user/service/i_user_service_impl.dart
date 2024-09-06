@@ -19,4 +19,9 @@ class IUserServiceImpl implements IUserService {
         registerType: 'App',
         supplierId: user.supplierId,
       ));
+
+  @override
+  Future<User> loginWithEmailAndPassword(
+          String email, String password, bool supplierUser) =>
+      _userRepository.loginWithEmailAndPassword(email, password, supplierUser);
 }

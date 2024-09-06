@@ -1,6 +1,7 @@
 import 'package:cuidapet_my_api/application/database/i_database_connection.dart';
 import 'package:cuidapet_my_api/application/exceptions/database_exception.dart';
 import 'package:cuidapet_my_api/application/exceptions/user_exists_exception.dart';
+import 'package:cuidapet_my_api/application/exceptions/user_notfound_exception.dart';
 import 'package:cuidapet_my_api/application/helpers/cripty_helper.dart';
 import 'package:cuidapet_my_api/application/logger/i_logger.dart';
 import 'package:cuidapet_my_api/entities/user.dart';
@@ -26,9 +27,9 @@ class IUserRepositoryImpl implements IUserRepository {
     try {
       conn = await _connection.openConnection();
       final query = '''
-      insert usuario(email, tipo_cadastro, img_avatar, senha, fornecedor_id, social_id)
-      values(?, ?, ?, ?, ?, ?)
-      ''';
+        insert usuario(email, tipo_cadastro, img_avatar, senha, fornecedor_id, social_id)
+        values(?, ?, ?, ?, ?, ?)
+        ''';
 
       final result = await conn.query(query, [
         user.email,
@@ -49,6 +50,49 @@ class IUserRepositoryImpl implements IUserRepository {
       }
       _log.error('Erro ao criar usuario', e, s);
       throw DatabaseException(message: 'Erro ao criar usuário', exception: e);
+    } finally {
+      await conn?.close();
+    }
+  }
+
+  @override
+  Future<User> loginWithEmailAndPassword(
+      String email, String password, bool supplierUser) async {
+    late final MySqlConnection? conn;
+    try {
+      conn = await _connection.openConnection();
+      var query = '''
+        select * from usuario where email = ? and senha = ?
+        ''';
+      if (supplierUser) {
+        query += 'and fornecedor_id is not null';
+      } else {
+        query += 'and fornecedor_id is null';
+      }
+
+      final result = await conn
+          .query(query, [email, CriptyHelper.generateSha256Hash(password)]);
+
+      if (result.isEmpty) {
+        _log.error('Usuário ou senha incorretos');
+        throw UserNotfoundException(message: 'Usuário ou senha incorretos');
+      } else {
+        final userSqlData = result.first;
+        return User(
+          id: userSqlData['id'],
+          email: userSqlData['email'],
+          registerType: userSqlData['tipo_cadastro'],
+          iosToken: (userSqlData['ios_token'] as Blob?)?.toString(),
+          androidToken: (userSqlData['android_token'] as Blob?)?.toString(),
+          refreshToken: (userSqlData['refresh_token'] as Blob?)?.toString(),
+          imageAvatar: (userSqlData['img_avatar'] as Blob?)?.toString(),
+          supplierId: userSqlData['fornecedor_id'],
+          socialKey: userSqlData['social_id'],
+        );
+      }
+    } on MySqlException catch (e, s) {
+      _log.error('Erro ao logar usuário', e, s);
+      throw DatabaseException(message: e.message, exception: e);
     } finally {
       await conn?.close();
     }

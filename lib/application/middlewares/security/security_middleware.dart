@@ -10,6 +10,7 @@ import 'package:shelf/shelf.dart';
 class SecurityMiddleware extends Middlewares {
   final ILogger _log;
   final skipUrl = <SecuritySkipUrl>[
+    SecuritySkipUrl(url: '/auth/', method: 'POST'),
     SecuritySkipUrl(url: '/auth/register', method: 'POST'),
   ];
 

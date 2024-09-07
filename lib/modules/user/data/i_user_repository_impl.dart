@@ -132,4 +132,36 @@ class IUserRepositoryImpl implements IUserRepository {
       await conn?.close();
     }
   }
+
+  @override
+  Future<void> updateUserDeviceTokenAndRefreshToken(User user) async {
+    late final MySqlConnection? conn;
+
+    try {
+      conn = await _connection.openConnection();
+      final setParams = {};
+      if (user.iosToken != null) {
+        setParams.putIfAbsent('ios_token', () => user.iosToken);
+      } else {
+        setParams.putIfAbsent('android_token', () => user.androidToken);
+      }
+      final query = '''
+        update usuario set 
+        ${setParams.keys.elementAt(0)} = ?,
+        refresh_token = ?
+        where id = ?
+        ''';
+
+      await conn.query(query, [
+        setParams.values.elementAt(0),
+        user.refreshToken!,
+        user.id!,
+      ]);
+    } on MySqlException catch (e, s) {
+      _log.error('Erro ao confimar login', e, s);
+      throw DatabaseException(message: e.message, exception: e);
+    } finally {
+      await conn?.close();
+    }
+  }
 }

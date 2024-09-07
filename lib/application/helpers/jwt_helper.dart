@@ -21,4 +21,13 @@ class JwtHelper {
 
   static JwtClaim getClaim(String token) =>
       verifyJwtHS256Signature(token, _jwtSecret);
+
+  static String refreshToken(String accessToken) =>
+      'Bearer ${issueJwtHS256(JwtClaim(
+            issuer: accessToken,
+            subject: 'RefreshToken',
+            expiry: DateTime.now().add(const Duration(days: 20)),
+            notBefore: DateTime.now().add(Duration(hours: 12)),
+            issuedAt: DateTime.now(),
+          ), _jwtSecret)}';
 }

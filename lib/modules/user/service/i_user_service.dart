@@ -5,4 +5,6 @@ abstract interface class IUserService {
   Future<User> createUser(UserSaveInputModel user);
   Future<User> loginWithEmailAndPassword(
       String email, String password, bool supplierUser);
+  Future<User> loginByEmailSocialKey(
+      String email, String avatar, String socialKey, String socialType);
 }

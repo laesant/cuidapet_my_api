@@ -31,10 +31,15 @@ class AuthController {
       User user;
       if (!loginModel.socialLogin) {
         user = await _userService.loginWithEmailAndPassword(
-            loginModel.login, loginModel.password, loginModel.supplierUser);
+            loginModel.login, loginModel.password!, loginModel.supplierUser);
       } else {
         // SOCIAL LOGIN (FACEBOOK, GOOGLE, APPLE)
-        user = User();
+        user = await _userService.loginByEmailSocialKey(
+          loginModel.login,
+          loginModel.avatar,
+          loginModel.socialKey!,
+          loginModel.socialType!,
+        );
       }
 
       return Response.ok(jsonEncode({

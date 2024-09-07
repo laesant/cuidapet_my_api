@@ -87,12 +87,47 @@ class IUserRepositoryImpl implements IUserRepository {
           refreshToken: (userSqlData['refresh_token'] as Blob?)?.toString(),
           imageAvatar: (userSqlData['img_avatar'] as Blob?)?.toString(),
           supplierId: userSqlData['fornecedor_id'],
-          socialKey: userSqlData['social_id'],
+          //  socialKey: userSqlData['social_id'],
         );
       }
     } on MySqlException catch (e, s) {
       _log.error('Erro ao logar usuário', e, s);
       throw DatabaseException(message: e.message, exception: e);
+    } finally {
+      await conn?.close();
+    }
+  }
+
+  @override
+  Future<User> loginByEmailSocialKey(
+      String email, String socialKey, String socialType) async {
+    late final MySqlConnection? conn;
+    try {
+      conn = await _connection.openConnection();
+      final result =
+          await conn.query('select * from usuario where email = ?', [email]);
+      if (result.isEmpty) {
+        throw UserNotfoundException(message: 'Usuário não encontrado');
+      } else {
+        final dataSql = result.first;
+        if (dataSql['social_id'] == null || dataSql['social_id'] != socialKey) {
+          await conn.query(
+            'update usuario set social_id = ?, tipo_cadastro = ? where id = ?',
+            [socialKey, socialType, dataSql['id']],
+          );
+        }
+        return User(
+          id: dataSql['id'],
+          email: dataSql['email'],
+          registerType: dataSql['tipo_cadastro'],
+          iosToken: (dataSql['ios_token'] as Blob?)?.toString(),
+          androidToken: (dataSql['android_token'] as Blob?)?.toString(),
+          refreshToken: (dataSql['refresh_token'] as Blob?)?.toString(),
+          imageAvatar: (dataSql['img_avatar'] as Blob?)?.toString(),
+          supplierId: dataSql['fornecedor_id'],
+          //socialKey: dataSql['social_id'],
+        );
+      }
     } finally {
       await conn?.close();
     }

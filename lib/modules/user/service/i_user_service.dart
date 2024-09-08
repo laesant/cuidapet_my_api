@@ -12,4 +12,5 @@ abstract interface class IUserService {
       String email, String avatar, String socialKey, String socialType);
   Future<String> confirmLogin(UserConfirmInputModel inputModel);
   Future<RefreshTokenModel> refreshToken(UserRefreshTokenInputModel inputModel);
+  Future<User> findBydId(int id);
 }

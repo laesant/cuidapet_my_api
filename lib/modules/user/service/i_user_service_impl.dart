@@ -108,4 +108,7 @@ class IUserServiceImpl implements IUserService {
       throw ServiceException('Erro ao validar refresh token');
     }
   }
+
+  @override
+  Future<User> findBydId(int id) => _userRepository.findById(id);
 }

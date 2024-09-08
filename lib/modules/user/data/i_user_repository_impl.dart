@@ -6,6 +6,7 @@ import 'package:cuidapet_my_api/application/helpers/cripty_helper.dart';
 import 'package:cuidapet_my_api/application/logger/i_logger.dart';
 import 'package:cuidapet_my_api/entities/user.dart';
 import 'package:injectable/injectable.dart';
+
 import 'package:mysql1/mysql1.dart';
 
 import './i_user_repository.dart';
@@ -164,4 +165,20 @@ class IUserRepositoryImpl implements IUserRepository {
       await conn?.close();
     }
   }
+
+  @override
+  Future<void> updateRefreshToken(User user) async {
+    late final MySqlConnection? conn;
+    try {
+      conn = await _connection.openConnection();
+      await conn.query(
+        'update usuario set refresh_token = ? where id = ?',
+        [user.refreshToken!, user.id!],
+      );
+    } finally {
+      await conn?.close();
+    }
+  }
+
+ 
 }

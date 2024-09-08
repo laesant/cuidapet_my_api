@@ -1,11 +1,15 @@
+import 'package:cuidapet_my_api/application/exceptions/service_exception.dart';
 import 'package:cuidapet_my_api/application/exceptions/user_notfound_exception.dart';
 import 'package:cuidapet_my_api/application/helpers/jwt_helper.dart';
 import 'package:cuidapet_my_api/application/logger/i_logger.dart';
 import 'package:cuidapet_my_api/entities/user.dart';
 import 'package:cuidapet_my_api/modules/user/data/i_user_repository.dart';
+import 'package:cuidapet_my_api/modules/user/view_models/refresh_token_model.dart';
 import 'package:cuidapet_my_api/modules/user/view_models/user_confirm_input_model.dart';
+import 'package:cuidapet_my_api/modules/user/view_models/user_refresh_token_input_model.dart';
 import 'package:cuidapet_my_api/modules/user/view_models/user_save_input_model.dart';
 import 'package:injectable/injectable.dart';
+import 'package:jaguar_jwt/jaguar_jwt.dart';
 
 import './i_user_service.dart';
 
@@ -61,5 +65,47 @@ class IUserServiceImpl implements IUserService {
     );
     await _userRepository.updateUserDeviceTokenAndRefreshToken(user);
     return user.refreshToken!;
+  }
+
+  @override
+  Future<RefreshTokenModel> refreshToken(
+      UserRefreshTokenInputModel inputModel) async {
+    _validateRefreshToken(inputModel);
+    final newAccessToken =
+        JwtHelper.generateJWT(inputModel.user, inputModel.supplier);
+    final newRefreshToken =
+        JwtHelper.refreshToken(newAccessToken.replaceAll('Bearer ', ''));
+
+    final user = User(
+      id: inputModel.user,
+      refreshToken: newRefreshToken,
+    );
+    await _userRepository.updateRefreshToken(user);
+
+    return RefreshTokenModel(
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    );
+  }
+
+  void _validateRefreshToken(UserRefreshTokenInputModel inputModel) {
+    try {
+      final refreshToken = inputModel.refreshToken.split(' ');
+
+      if (refreshToken.length != 2 || refreshToken[0] != 'Bearer') {
+        _log.error('Refresh token inválido');
+        throw ServiceException('Refresh token inválido');
+      }
+
+      final refreshTokenClaim = JwtHelper.getClaim(refreshToken[1]);
+      refreshTokenClaim.validate(issuer: inputModel.accessToken);
+    } on ServiceException {
+      rethrow;
+    } on JwtException catch (e) {
+      _log.error('Refresh token inválido', e);
+      throw ServiceException('Refresh token inválido');
+    } catch (e) {
+      throw ServiceException('Erro ao validar refresh token');
+    }
   }
 }

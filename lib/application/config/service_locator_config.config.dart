@@ -17,6 +17,11 @@ import '../../modules/categories/data/categories_repository_impl.dart' as _i772;
 import '../../modules/categories/service/categories_service.dart' as _i805;
 import '../../modules/categories/service/categories_service_impl.dart'
     as _i1053;
+import '../../modules/supplier/controller/supplier_controller.dart' as _i331;
+import '../../modules/supplier/data/supplier_repository.dart' as _i151;
+import '../../modules/supplier/data/supplier_repository_impl.dart' as _i998;
+import '../../modules/supplier/service/supplier_service.dart' as _i977;
+import '../../modules/supplier/service/supplier_service_impl.dart' as _i1058;
 import '../../modules/user/controller/auth_controller.dart' as _i477;
 import '../../modules/user/controller/user_controller.dart' as _i983;
 import '../../modules/user/data/i_user_repository.dart' as _i872;
@@ -50,8 +55,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i805.CategoriesService>(() =>
         _i1053.CategoriesServiceImpl(
             repository: gh<_i537.CategoriesRepository>()));
+    gh.lazySingleton<_i151.SupplierRepository>(
+        () => _i998.SupplierRepositoryImpl(
+              connection: gh<_i77.IDatabaseConnection>(),
+              log: gh<_i742.ILogger>(),
+            ));
     gh.factory<_i55.CategoriesController>(() => _i55.CategoriesController(
         categoriesService: gh<_i805.CategoriesService>()));
+    gh.lazySingleton<_i977.SupplierService>(() =>
+        _i1058.SupplierServiceImpl(repository: gh<_i151.SupplierRepository>()));
     gh.lazySingleton<_i872.IUserRepository>(() => _i1014.IUserRepositoryImpl(
           connection: gh<_i77.IDatabaseConnection>(),
           log: gh<_i742.ILogger>(),
@@ -60,6 +72,8 @@ extension GetItInjectableX on _i174.GetIt {
           userRepository: gh<_i872.IUserRepository>(),
           log: gh<_i742.ILogger>(),
         ));
+    gh.factory<_i331.SupplierController>(() =>
+        _i331.SupplierController(supplierService: gh<_i977.SupplierService>()));
     gh.factory<_i477.AuthController>(() => _i477.AuthController(
           userService: gh<_i610.IUserService>(),
           log: gh<_i742.ILogger>(),

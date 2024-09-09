@@ -9,6 +9,7 @@ import 'package:cuidapet_my_api/modules/user/view_models/update_url_avatar_model
 import 'package:cuidapet_my_api/modules/user/view_models/user_confirm_input_model.dart';
 import 'package:cuidapet_my_api/modules/user/view_models/user_refresh_token_input_model.dart';
 import 'package:cuidapet_my_api/modules/user/view_models/user_save_input_model.dart';
+import 'package:cuidapet_my_api/modules/user/view_models/user_update_token_device_input_model.dart';
 import 'package:injectable/injectable.dart';
 import 'package:jaguar_jwt/jaguar_jwt.dart';
 
@@ -119,4 +120,9 @@ class IUserServiceImpl implements IUserService {
         inputModel.userId, inputModel.urlAvatar);
     return findBydId(inputModel.userId);
   }
+
+  @override
+  Future<void> updateDeviceToken(UserUpdateTokenDeviceInputModel inputModel) =>
+      _userRepository.updateDeviceToken(
+          inputModel.userId, inputModel.token, inputModel.platform);
 }

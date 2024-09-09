@@ -72,8 +72,10 @@ extension GetItInjectableX on _i174.GetIt {
           userRepository: gh<_i872.IUserRepository>(),
           log: gh<_i742.ILogger>(),
         ));
-    gh.factory<_i331.SupplierController>(() =>
-        _i331.SupplierController(supplierService: gh<_i977.SupplierService>()));
+    gh.factory<_i331.SupplierController>(() => _i331.SupplierController(
+          supplierService: gh<_i977.SupplierService>(),
+          log: gh<_i742.ILogger>(),
+        ));
     gh.factory<_i477.AuthController>(() => _i477.AuthController(
           userService: gh<_i610.IUserService>(),
           log: gh<_i742.ILogger>(),

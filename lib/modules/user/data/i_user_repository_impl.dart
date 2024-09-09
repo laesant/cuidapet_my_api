@@ -129,6 +129,9 @@ class IUserRepositoryImpl implements IUserRepository {
           //socialKey: dataSql['social_id'],
         );
       }
+    } on MySqlException catch (e, s) {
+      _log.error('Erro ao realizar login com rede social', e, s);
+      throw DatabaseException(message: e.message, exception: e);
     } finally {
       await conn?.close();
     }
@@ -175,6 +178,9 @@ class IUserRepositoryImpl implements IUserRepository {
         'update usuario set refresh_token = ? where id = ?',
         [user.refreshToken!, user.id!],
       );
+    } on MySqlException catch (e, s) {
+      _log.error('Erro ao atualizar refresh_token', e, s);
+      throw DatabaseException(message: e.message, exception: e);
     } finally {
       await conn?.close();
     }
@@ -205,6 +211,26 @@ class IUserRepositoryImpl implements IUserRepository {
           //socialKey: dataSql['social_id'],
         );
       }
+    } on MySqlException catch (e, s) {
+      _log.error('Erro ao buscar usuário por id', e, s);
+      throw DatabaseException(message: e.message, exception: e);
+    } finally {
+      await conn?.close();
+    }
+  }
+
+  @override
+  Future<void> updateUrlAvatar(int id, String urlAvatar) async {
+    late final MySqlConnection? conn;
+    try {
+      conn = await _connection.openConnection();
+      await conn.query(
+        'update usuario set img_avatar = ? where id = ?',
+        [urlAvatar, id],
+      );
+    } on MySqlException catch (e, s) {
+      _log.error('Erro ao atualizar avatar', e, s);
+      throw DatabaseException(message: e.message, exception: e);
     } finally {
       await conn?.close();
     }

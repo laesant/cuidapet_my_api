@@ -5,6 +5,7 @@ import 'package:cuidapet_my_api/application/logger/i_logger.dart';
 import 'package:cuidapet_my_api/entities/user.dart';
 import 'package:cuidapet_my_api/modules/user/data/i_user_repository.dart';
 import 'package:cuidapet_my_api/modules/user/view_models/refresh_token_model.dart';
+import 'package:cuidapet_my_api/modules/user/view_models/update_url_avatar_model.dart';
 import 'package:cuidapet_my_api/modules/user/view_models/user_confirm_input_model.dart';
 import 'package:cuidapet_my_api/modules/user/view_models/user_refresh_token_input_model.dart';
 import 'package:cuidapet_my_api/modules/user/view_models/user_save_input_model.dart';
@@ -111,4 +112,11 @@ class IUserServiceImpl implements IUserService {
 
   @override
   Future<User> findBydId(int id) => _userRepository.findById(id);
+
+  @override
+  Future<User> updateAvatar(UpdateUrlAvatarModel inputModel) async {
+    await _userRepository.updateUrlAvatar(
+        inputModel.userId, inputModel.urlAvatar);
+    return findBydId(inputModel.userId);
+  }
 }

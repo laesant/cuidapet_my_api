@@ -17,6 +17,11 @@ import '../../modules/categories/data/categories_repository_impl.dart' as _i772;
 import '../../modules/categories/service/categories_service.dart' as _i805;
 import '../../modules/categories/service/categories_service_impl.dart'
     as _i1053;
+import '../../modules/schedules/controller/schedule_controller.dart' as _i436;
+import '../../modules/schedules/data/schedule_repository.dart' as _i451;
+import '../../modules/schedules/data/schedule_repository_impl.dart' as _i6;
+import '../../modules/schedules/service/schedule_service.dart' as _i541;
+import '../../modules/schedules/service/schedule_service_impl.dart' as _i26;
 import '../../modules/supplier/controller/supplier_controller.dart' as _i331;
 import '../../modules/supplier/data/supplier_repository.dart' as _i151;
 import '../../modules/supplier/data/supplier_repository_impl.dart' as _i998;
@@ -44,9 +49,11 @@ extension GetItInjectableX on _i174.GetIt {
       environment,
       environmentFilter,
     );
+    gh.factory<_i436.ScheduleController>(() => _i436.ScheduleController());
     gh.lazySingleton<_i77.IDatabaseConnection>(() =>
         _i795.IDatabaseConnectionImpl(
             gh<_i32.DatabaseConnectionConfiguration>()));
+    gh.lazySingleton<_i541.ScheduleService>(() => _i26.ScheduleServiceImpl());
     gh.lazySingleton<_i537.CategoriesRepository>(
         () => _i772.CategoriesRepositoryImpl(
               connection: gh<_i77.IDatabaseConnection>(),
@@ -60,6 +67,8 @@ extension GetItInjectableX on _i174.GetIt {
               connection: gh<_i77.IDatabaseConnection>(),
               log: gh<_i742.ILogger>(),
             ));
+    gh.lazySingleton<_i451.ScheduleRepository>(
+        () => _i6.ScheduleRepositoryImpl());
     gh.factory<_i55.CategoriesController>(() => _i55.CategoriesController(
         categoriesService: gh<_i805.CategoriesService>()));
     gh.lazySingleton<_i872.IUserRepository>(() => _i1014.IUserRepositoryImpl(

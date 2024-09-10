@@ -78,6 +78,23 @@ class SupplierController {
     }
   }
 
+  @Route.get('/user')
+  Future<Response> checkUserExists(Request request) async {
+    final email = request.url.queryParameters['email'];
+    if (email == null) {
+      return Response.badRequest(
+          body: jsonEncode({'message': 'E-mail obrigatório'}));
+    }
+    final isEmailExists = await _supplierService.checkUserEmailExists(email);
+    return isEmailExists ? Response(200) : Response(204);
+    //  return Response.ok(jsonEncode(isEmailExists));
+  }
+
+  @Route.post('/user')
+  Future<Response> (Request request) async{
+     return Response.ok(jsonEncode(''));
+  }
+
   String _supplierMapper(Supplier supplier) {
     return jsonEncode({
       'id': supplier.id,

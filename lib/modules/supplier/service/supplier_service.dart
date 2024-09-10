@@ -2,6 +2,7 @@ import 'package:cuidapet_my_api/dtos/supplier_near_by_me_dto.dart';
 import 'package:cuidapet_my_api/entities/supplier.dart';
 import 'package:cuidapet_my_api/entities/supplier_service_entity.dart';
 import 'package:cuidapet_my_api/modules/supplier/view_models/create_supplier_user_model.dart';
+import 'package:cuidapet_my_api/modules/supplier/view_models/supplier_update_input_model.dart';
 
 abstract interface class SupplierService {
   Future<List<SupplierNearByMeDto>> findNearByMe(double lat, double lng);
@@ -9,4 +10,5 @@ abstract interface class SupplierService {
   Future<List<SupplierServiceEntity>> findServicesBySupplierId(int supplierId);
   Future<bool> checkUserEmailExists(String email);
   Future<void> createSupplierUser(CreateSupplierUserModel model);
+  Future<Supplier> update(SupplierUpdateInputModel model);
 }

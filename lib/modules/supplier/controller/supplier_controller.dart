@@ -4,6 +4,7 @@ import 'package:cuidapet_my_api/application/logger/i_logger.dart';
 import 'package:cuidapet_my_api/entities/supplier.dart';
 import 'package:cuidapet_my_api/modules/supplier/service/supplier_service.dart';
 import 'package:cuidapet_my_api/modules/supplier/view_models/create_supplier_user_model.dart';
+import 'package:cuidapet_my_api/modules/supplier/view_models/supplier_update_input_model.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -102,6 +103,26 @@ class SupplierController {
       _log.error('Erro ao cadastrar usuário', e, s);
       return Response.internalServerError(
           body: jsonEncode({'message': 'Erro ao cadastrar usuário'}));
+    }
+  }
+
+  @Route.put('/')
+  Future<Response> update(Request request) async {
+    try {
+      final supplierId = int.tryParse(request.headers['supplier'] ?? '');
+      if (supplierId == null) {
+        return Response.badRequest(
+            body: jsonEncode({'message': 'ID do fornecedor inválido'}));
+      }
+      final model = SupplierUpdateInputModel(await request.readAsString(),
+          supplierId: supplierId);
+
+      final supplier = await _supplierService.update(model);
+      return Response.ok(_supplierMapper(supplier));
+    } catch (e, s) {
+      _log.error('Erro ao atualizar fornecedor', e, s);
+      return Response.internalServerError(
+          body: jsonEncode({'message': 'Erro ao atualizar fornecedor'}));
     }
   }
 

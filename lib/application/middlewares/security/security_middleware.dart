@@ -59,7 +59,7 @@ class SecurityMiddleware extends Middlewares {
 
       final securityHeaders = {
         'user': userId,
-        'supplier': supplierId,
+        'supplier': supplierId?.toString(),
         'access_token': authorizationToken,
       };
       return innerHandler(request.change(headers: securityHeaders));

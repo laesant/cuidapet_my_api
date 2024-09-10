@@ -40,6 +40,7 @@ class SupplierRepositoryImpl implements SupplierRepository {
         ) AS distancia
         FROM fornecedor f
         HAVING distancia <= $distance
+        ORDER BY distancia ASC
       ''';
 
       final result = await conn.query(query);
@@ -168,6 +169,47 @@ class SupplierRepositoryImpl implements SupplierRepository {
       return result.insertId!;
     } on MySqlException catch (e, s) {
       _log.error('Erro ao cadastrar novo fornecedor', e, s);
+      throw DatabaseException(message: e.message, exception: e);
+    } finally {
+      await conn.close();
+    }
+  }
+
+  @override
+  Future<Supplier> update(Supplier supplier) async {
+    late final MySqlConnection conn;
+
+    try {
+      conn = await _connection.openConnection();
+      await conn.query('''
+        UPDATE fornecedor
+        SET nome = ?, logo = ?, endereco = ?, telefone = ?, latlng = ST_GeomFromText(?), categorias_fornecedor_id = ?
+        WHERE id = ?
+      ''', [
+        supplier.name,
+        supplier.logo,
+        supplier.address,
+        supplier.phone,
+        'POINT(${supplier.lat ?? 0} ${supplier.lng ?? 0})',
+        supplier.category?.id,
+        supplier.id,
+      ]);
+      Category? category;
+      if (supplier.category?.id != null) {
+        final resultCategory = await conn.query(
+          'select * from categorias_fornecedor where id = ?',
+          [supplier.category?.id],
+        );
+        category = Category(
+          id: resultCategory.first['id'],
+          name: resultCategory.first['nome_categoria'],
+          type: resultCategory.first['tipo_categoria'],
+        );
+      }
+
+      return supplier.copyWith(category: category);
+    } on MySqlException catch (e, s) {
+      _log.error('Erro ao atualizar fornecedor', e, s);
       throw DatabaseException(message: e.message, exception: e);
     } finally {
       await conn.close();

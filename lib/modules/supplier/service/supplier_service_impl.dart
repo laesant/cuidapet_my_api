@@ -4,6 +4,7 @@ import 'package:cuidapet_my_api/entities/supplier.dart';
 import 'package:cuidapet_my_api/entities/supplier_service_entity.dart';
 import 'package:cuidapet_my_api/modules/supplier/data/supplier_repository.dart';
 import 'package:cuidapet_my_api/modules/supplier/view_models/create_supplier_user_model.dart';
+import 'package:cuidapet_my_api/modules/supplier/view_models/supplier_update_input_model.dart';
 import 'package:cuidapet_my_api/modules/user/service/i_user_service.dart';
 import 'package:cuidapet_my_api/modules/user/view_models/user_save_input_model.dart';
 import 'package:injectable/injectable.dart';
@@ -51,4 +52,17 @@ class SupplierServiceImpl implements SupplierService {
       supplierId: supplierId,
     ));
   }
+
+  @override
+  Future<Supplier> update(SupplierUpdateInputModel model) =>
+      _repository.update(Supplier(
+        id: model.supplierId,
+        name: model.name,
+        logo: model.logo,
+        address: model.address,
+        phone: model.phone,
+        lat: model.lat,
+        lng: model.lng,
+        category: Category(id: model.categoryId),
+      ));
 }

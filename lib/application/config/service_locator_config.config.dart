@@ -49,11 +49,9 @@ extension GetItInjectableX on _i174.GetIt {
       environment,
       environmentFilter,
     );
-    gh.factory<_i436.ScheduleController>(() => _i436.ScheduleController());
     gh.lazySingleton<_i77.IDatabaseConnection>(() =>
         _i795.IDatabaseConnectionImpl(
             gh<_i32.DatabaseConnectionConfiguration>()));
-    gh.lazySingleton<_i541.ScheduleService>(() => _i26.ScheduleServiceImpl());
     gh.lazySingleton<_i537.CategoriesRepository>(
         () => _i772.CategoriesRepositoryImpl(
               connection: gh<_i77.IDatabaseConnection>(),
@@ -62,13 +60,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i805.CategoriesService>(() =>
         _i1053.CategoriesServiceImpl(
             repository: gh<_i537.CategoriesRepository>()));
+    gh.lazySingleton<_i451.ScheduleRepository>(() => _i6.ScheduleRepositoryImpl(
+          connection: gh<_i77.IDatabaseConnection>(),
+          log: gh<_i742.ILogger>(),
+        ));
     gh.lazySingleton<_i151.SupplierRepository>(
         () => _i998.SupplierRepositoryImpl(
               connection: gh<_i77.IDatabaseConnection>(),
               log: gh<_i742.ILogger>(),
             ));
-    gh.lazySingleton<_i451.ScheduleRepository>(
-        () => _i6.ScheduleRepositoryImpl());
+    gh.lazySingleton<_i541.ScheduleService>(() =>
+        _i26.ScheduleServiceImpl(repository: gh<_i451.ScheduleRepository>()));
     gh.factory<_i55.CategoriesController>(() => _i55.CategoriesController(
         categoriesService: gh<_i805.CategoriesService>()));
     gh.lazySingleton<_i872.IUserRepository>(() => _i1014.IUserRepositoryImpl(
@@ -77,6 +79,10 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.lazySingleton<_i610.IUserService>(() => _i705.IUserServiceImpl(
           userRepository: gh<_i872.IUserRepository>(),
+          log: gh<_i742.ILogger>(),
+        ));
+    gh.factory<_i436.ScheduleController>(() => _i436.ScheduleController(
+          scheduleService: gh<_i541.ScheduleService>(),
           log: gh<_i742.ILogger>(),
         ));
     gh.lazySingleton<_i977.SupplierService>(() => _i1058.SupplierServiceImpl(

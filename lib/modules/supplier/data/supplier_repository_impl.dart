@@ -4,6 +4,7 @@ import 'package:cuidapet_my_api/application/logger/i_logger.dart';
 import 'package:cuidapet_my_api/dtos/supplier_near_by_me_dto.dart';
 import 'package:cuidapet_my_api/entities/category.dart';
 import 'package:cuidapet_my_api/entities/supplier.dart';
+import 'package:cuidapet_my_api/entities/supplier_service_entity.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mysql1/mysql1.dart';
 
@@ -92,6 +93,36 @@ class SupplierRepositoryImpl implements SupplierRepository {
       );
     } on MySqlException catch (e, s) {
       _log.error('Erro ao buscar fornecedor por id', e, s);
+      throw DatabaseException(message: e.message, exception: e);
+    } finally {
+      await conn.close();
+    }
+  }
+
+  @override
+  Future<List<SupplierServiceEntity>> findServicesBySupplierId(
+      int supplierId) async {
+    late final MySqlConnection conn;
+
+    try {
+      conn = await _connection.openConnection();
+      final result = await conn.query('''
+        SELECT id, fornecedor_id, nome_servico, valor_servico
+        FROM fornecedor_servicos
+        WHERE fornecedor_id = ?
+      ''', [supplierId]);
+      if (result.isEmpty) return [];
+
+      return result
+          .map((e) => SupplierServiceEntity(
+                id: e['id'],
+                supplierId: e['fornecedor_id'],
+                name: e['nome_servico'],
+                price: e['valor_servico'],
+              ))
+          .toList();
+    } on MySqlException catch (e, s) {
+      _log.error('Erro ao buscar servicos de um  fornecedor por id', e, s);
       throw DatabaseException(message: e.message, exception: e);
     } finally {
       await conn.close();

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:cuidapet_my_api/application/logger/i_logger.dart';
+import 'package:cuidapet_my_api/entities/supplier.dart';
 import 'package:cuidapet_my_api/modules/supplier/service/supplier_service.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shelf/shelf.dart';
@@ -45,5 +46,31 @@ class SupplierController {
     }
   }
 
+  @Route.get('/<id|[0-9]+>')
+  Future<Response> findById(Request request, String id) async {
+    final supplier = await _supplierService.findById(int.parse(id));
+    if (supplier == null) {
+      return Response.ok(jsonEncode({}));
+    }
+    return Response.ok(_supplierMapper(supplier));
+  }
+
   Router get router => _$SupplierControllerRouter(this);
+
+  String _supplierMapper(Supplier supplier) {
+    return jsonEncode({
+      'id': supplier.id,
+      'name': supplier.name,
+      'logo': supplier.logo,
+      'address': supplier.address,
+      'phone': supplier.phone,
+      'lat': supplier.lat,
+      'lng': supplier.lng,
+      'category': {
+        'ind': supplier.category?.ind,
+        'name': supplier.category?.name,
+        'type': supplier.category?.type,
+      },
+    });
+  }
 }

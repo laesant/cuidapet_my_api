@@ -2,6 +2,8 @@ import 'package:cuidapet_my_api/application/database/i_database_connection.dart'
 import 'package:cuidapet_my_api/application/exceptions/database_exception.dart';
 import 'package:cuidapet_my_api/application/logger/i_logger.dart';
 import 'package:cuidapet_my_api/dtos/supplier_near_by_me_dto.dart';
+import 'package:cuidapet_my_api/entities/category.dart';
+import 'package:cuidapet_my_api/entities/supplier.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mysql1/mysql1.dart';
 
@@ -51,6 +53,45 @@ class SupplierRepositoryImpl implements SupplierRepository {
           .toList();
     } on MySqlException catch (e, s) {
       _log.error('Erro ao buscar fornecedores por posição', e, s);
+      throw DatabaseException(message: e.message, exception: e);
+    } finally {
+      await conn.close();
+    }
+  }
+
+  @override
+  Future<Supplier?> findById(int id) async {
+    late final MySqlConnection conn;
+
+    try {
+      conn = await _connection.openConnection();
+      final query = '''
+        SELECT f.id, f.nome, f.logo, f.endereco, f.telefone, ST_X(f.latlng) as lat, ST_Y(f.latlng) as lng,
+        f.categorias_fornecedor_id, c.nome_categoria, c.tipo_categoria
+        FROM fornecedor f
+        inner join categorias_fornecedor as c on (f.categorias_fornecedor_id = c.id)
+        WHERE f.id = $id
+      ''';
+
+      final result = await conn.query(query);
+      if (result.isEmpty) return null;
+
+      return Supplier(
+        id: result.first['id'],
+        name: result.first['nome'],
+        logo: (result.first['logo'] as Blob?)?.toString(),
+        address: result.first['endereco'],
+        phone: result.first['telefone'],
+        lat: result.first['lat'],
+        lng: result.first['lng'],
+        category: Category(
+          ind: result.first['categorias_fornecedor_id'],
+          name: result.first['nome_categoria'],
+          type: result.first['tipo_categoria'],
+        ),
+      );
+    } on MySqlException catch (e, s) {
+      _log.error('Erro ao buscar fornecedor por id', e, s);
       throw DatabaseException(message: e.message, exception: e);
     } finally {
       await conn.close();

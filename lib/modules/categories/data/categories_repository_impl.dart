@@ -24,7 +24,7 @@ class CategoriesRepositoryImpl implements CategoriesRepository {
       final result = await conn.query('SELECT * FROM categorias_fornecedor');
       return result
           .map((e) => Category(
-                ind: e['id'],
+                id: e['id'],
                 name: e['nome_categoria'],
                 type: e['tipo_categoria'],
               ))

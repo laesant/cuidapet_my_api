@@ -86,7 +86,7 @@ class SupplierRepositoryImpl implements SupplierRepository {
         lat: result.first['lat'],
         lng: result.first['lng'],
         category: Category(
-          ind: result.first['categorias_fornecedor_id'],
+          id: result.first['categorias_fornecedor_id'],
           name: result.first['nome_categoria'],
           type: result.first['tipo_categoria'],
         ),
@@ -141,6 +141,33 @@ class SupplierRepositoryImpl implements SupplierRepository {
       return result.first['COUNT(*)'] == 1;
     } on MySqlException catch (e, s) {
       _log.error('Erro ao verificar email existente', e, s);
+      throw DatabaseException(message: e.message, exception: e);
+    } finally {
+      await conn.close();
+    }
+  }
+
+  @override
+  Future<int> saveSupplier(Supplier supplier) async {
+    late final MySqlConnection conn;
+
+    try {
+      conn = await _connection.openConnection();
+
+      final result = await conn.query('''
+        INSERT INTO fornecedor (nome, logo, endereco, telefone, latlng, categorias_fornecedor_id)
+        VALUES (?, ?, ?, ?, ST_GeomFromText(?), ?)
+      ''', [
+        supplier.name,
+        supplier.logo,
+        supplier.address,
+        supplier.phone,
+        'POINT(${supplier.lat ?? 0} ${supplier.lng ?? 0})',
+        supplier.category?.id,
+      ]);
+      return result.insertId!;
+    } on MySqlException catch (e, s) {
+      _log.error('Erro ao cadastrar novo fornecedor', e, s);
       throw DatabaseException(message: e.message, exception: e);
     } finally {
       await conn.close();

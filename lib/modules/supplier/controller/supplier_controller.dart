@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cuidapet_my_api/application/logger/i_logger.dart';
 import 'package:cuidapet_my_api/entities/supplier.dart';
 import 'package:cuidapet_my_api/modules/supplier/service/supplier_service.dart';
+import 'package:cuidapet_my_api/modules/supplier/view_models/create_supplier_user_model.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -91,8 +92,17 @@ class SupplierController {
   }
 
   @Route.post('/user')
-  Future<Response> (Request request) async{
-     return Response.ok(jsonEncode(''));
+  Future<Response> createNewUser(Request request) async {
+    try {
+      await _supplierService.createSupplierUser(
+          CreateSupplierUserModel(await request.readAsString()));
+      return Response.ok(
+          jsonEncode({'message': 'Usuário cadastrado com sucesso'}));
+    } catch (e, s) {
+      _log.error('Erro ao cadastrar usuário', e, s);
+      return Response.internalServerError(
+          body: jsonEncode({'message': 'Erro ao cadastrar usuário'}));
+    }
   }
 
   String _supplierMapper(Supplier supplier) {
@@ -105,7 +115,7 @@ class SupplierController {
       'lat': supplier.lat,
       'lng': supplier.lng,
       'category': {
-        'ind': supplier.category?.ind,
+        'ind': supplier.category?.id,
         'name': supplier.category?.name,
         'type': supplier.category?.type,
       },

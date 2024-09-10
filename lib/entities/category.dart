@@ -1,7 +1,7 @@
 class Category {
-  final int? ind;
+  final int? id;
   final String? name;
   final String? type;
 
-  Category({this.ind, this.name, this.type});
+  Category({this.id, this.name, this.type});
 }

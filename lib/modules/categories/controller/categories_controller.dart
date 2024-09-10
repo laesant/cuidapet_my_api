@@ -19,7 +19,7 @@ class CategoriesController {
       final categories = await _categoriesService.findAll();
       return Response.ok(jsonEncode(categories
           .map((e) => {
-                'id': e.ind,
+                'id': e.id,
                 'nome': e.name,
                 'tipo': e.type,
               })

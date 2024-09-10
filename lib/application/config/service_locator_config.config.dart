@@ -62,8 +62,6 @@ extension GetItInjectableX on _i174.GetIt {
             ));
     gh.factory<_i55.CategoriesController>(() => _i55.CategoriesController(
         categoriesService: gh<_i805.CategoriesService>()));
-    gh.lazySingleton<_i977.SupplierService>(() =>
-        _i1058.SupplierServiceImpl(repository: gh<_i151.SupplierRepository>()));
     gh.lazySingleton<_i872.IUserRepository>(() => _i1014.IUserRepositoryImpl(
           connection: gh<_i77.IDatabaseConnection>(),
           log: gh<_i742.ILogger>(),
@@ -71,6 +69,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i610.IUserService>(() => _i705.IUserServiceImpl(
           userRepository: gh<_i872.IUserRepository>(),
           log: gh<_i742.ILogger>(),
+        ));
+    gh.lazySingleton<_i977.SupplierService>(() => _i1058.SupplierServiceImpl(
+          repository: gh<_i151.SupplierRepository>(),
+          userService: gh<_i610.IUserService>(),
         ));
     gh.factory<_i331.SupplierController>(() => _i331.SupplierController(
           supplierService: gh<_i977.SupplierService>(),

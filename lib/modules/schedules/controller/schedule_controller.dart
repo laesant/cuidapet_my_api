@@ -47,5 +47,39 @@ class ScheduleController {
     }
   }
 
+  @Route.get('/')
+  Future<Response> findAllSchedulesByUser(Request request) async {
+    try {
+      final result = await _scheduleService
+          .findAllByUser(int.parse(request.headers['user']!));
+      final response = result
+          .map((e) => {
+                'id': e.id,
+                'schedule_date': e.scheduleDate.toIso8601String(),
+                'status': e.status,
+                'name': e.name,
+                'pet_name': e.petName,
+                'supplier': {
+                  'id': e.supplier.id,
+                  'name': e.supplier.name,
+                  'logo': e.supplier.logo,
+                },
+                'services': e.services
+                    .map((s) => {
+                          'id': s.service.id,
+                          'name': s.service.name,
+                          'price': s.service.price,
+                        })
+                    .toList()
+              })
+          .toList();
+      return Response.ok(jsonEncode(response));
+    } catch (e, s) {
+      _log.error('Erro ao buscar agendamentos do usuario', e, s);
+      return Response.internalServerError(
+          body: jsonEncode({'message': 'Erro ao buscar agendamentos'}));
+    }
+  }
+
   Router get router => _$ScheduleControllerRouter(this);
 }

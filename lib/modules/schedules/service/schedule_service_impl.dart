@@ -28,4 +28,8 @@ class ScheduleServiceImpl implements ScheduleService {
               .toList(),
         ),
       );
+
+  @override
+  Future<void> changeStatus(String status, int scheduleId) =>
+      _repository.changeStatus(status, scheduleId);
 }

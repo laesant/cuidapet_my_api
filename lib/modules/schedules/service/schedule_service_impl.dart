@@ -36,4 +36,8 @@ class ScheduleServiceImpl implements ScheduleService {
   @override
   Future<List<Schedule>> findAllByUser(int userId) =>
       _repository.findAllByUser(userId);
+
+  @override
+  Future<List<Schedule>> findAllByUserSupplier(int userId) =>
+      _repository.findAllByUserSupplier(userId);
 }

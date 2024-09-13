@@ -5,4 +5,5 @@ abstract interface class ScheduleService {
   Future<void> scheduleServices(ScheduleInputModel model);
   Future<void> changeStatus(String status, int scheduleId);
   Future<List<Schedule>> findAllByUser(int userId);
+  Future<List<Schedule>> findAllByUserSupplier(int userId);
 }

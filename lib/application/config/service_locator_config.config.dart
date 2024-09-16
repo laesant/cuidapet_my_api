@@ -54,8 +54,6 @@ extension GetItInjectableX on _i174.GetIt {
       environment,
       environmentFilter,
     );
-    gh.factory<_i194.ChatController>(() => _i194.ChatController());
-    gh.lazySingleton<_i51.ChatService>(() => _i931.ChatServiceImpl());
     gh.lazySingleton<_i77.IDatabaseConnection>(() =>
         _i795.IDatabaseConnectionImpl(
             gh<_i32.DatabaseConnectionConfiguration>()));
@@ -64,7 +62,6 @@ extension GetItInjectableX on _i174.GetIt {
               connection: gh<_i77.IDatabaseConnection>(),
               log: gh<_i742.ILogger>(),
             ));
-    gh.lazySingleton<_i199.ChatRepository>(() => _i482.ChatRepositoryImpl());
     gh.lazySingleton<_i805.CategoriesService>(() =>
         _i1053.CategoriesServiceImpl(
             repository: gh<_i537.CategoriesRepository>()));
@@ -81,6 +78,10 @@ extension GetItInjectableX on _i174.GetIt {
         _i26.ScheduleServiceImpl(repository: gh<_i451.ScheduleRepository>()));
     gh.factory<_i55.CategoriesController>(() => _i55.CategoriesController(
         categoriesService: gh<_i805.CategoriesService>()));
+    gh.lazySingleton<_i199.ChatRepository>(() => _i482.ChatRepositoryImpl(
+          connection: gh<_i77.IDatabaseConnection>(),
+          log: gh<_i742.ILogger>(),
+        ));
     gh.lazySingleton<_i872.IUserRepository>(() => _i1014.IUserRepositoryImpl(
           connection: gh<_i77.IDatabaseConnection>(),
           log: gh<_i742.ILogger>(),
@@ -93,6 +94,8 @@ extension GetItInjectableX on _i174.GetIt {
           scheduleService: gh<_i541.ScheduleService>(),
           log: gh<_i742.ILogger>(),
         ));
+    gh.lazySingleton<_i51.ChatService>(
+        () => _i931.ChatServiceImpl(repository: gh<_i199.ChatRepository>()));
     gh.lazySingleton<_i977.SupplierService>(() => _i1058.SupplierServiceImpl(
           repository: gh<_i151.SupplierRepository>(),
           userService: gh<_i610.IUserService>(),
@@ -107,6 +110,10 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.factory<_i983.UserController>(() => _i983.UserController(
           userService: gh<_i610.IUserService>(),
+          log: gh<_i742.ILogger>(),
+        ));
+    gh.factory<_i194.ChatController>(() => _i194.ChatController(
+          chatService: gh<_i51.ChatService>(),
           log: gh<_i742.ILogger>(),
         ));
     return this;

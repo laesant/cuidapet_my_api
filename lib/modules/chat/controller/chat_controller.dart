@@ -32,8 +32,16 @@ class ChatController {
 
   @Route.post('/notify')
   Future<Response> notifyUser(Request request) async {
-    final model = ChatNotifyModel(await request.readAsString());
-    return Response.ok(jsonEncode(''));
+    try {
+      final model = ChatNotifyModel(await request.readAsString());
+      await _chatService.notifyChat(model);
+      return Response.ok(jsonEncode({}));
+    } catch (e) {
+      _log.error('Erro ao notificar chat.', e);
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Erro ao enviar notificação.'}),
+      );
+    }
   }
 
   Router get router => _$ChatControllerRouter(this);

@@ -6,4 +6,5 @@ abstract interface class ChatService {
   Future<void> notifyChat(ChatNotifyModel model);
   Future<List<Chat>> getChatsByUser(int userId);
   Future<List<Chat>> getChatsBySupplier(int supplierId);
+  Future<void> endChat(int chatId);
 }

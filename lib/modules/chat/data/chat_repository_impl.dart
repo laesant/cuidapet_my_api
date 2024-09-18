@@ -195,4 +195,22 @@ class ChatRepositoryImpl implements ChatRepository {
       await conn?.close();
     }
   }
+
+  @override
+  Future<void> endChat(int chatId) async {
+    late final MySqlConnection? conn;
+
+    try {
+      conn = await _connection.openConnection();
+      await conn.query(
+        '''update chats set status = 'F' where id = ?''',
+        [chatId],
+      );
+    } on MySqlException catch (e, s) {
+      _log.error('Erro ao finalizar chat.', e, s);
+      throw DatabaseException(message: e.message);
+    } finally {
+      await conn?.close();
+    }
+  }
 }

@@ -62,4 +62,7 @@ class ChatServiceImpl implements ChatService {
   @override
   Future<List<Chat>> getChatsBySupplier(int supplierId) =>
       _repository.getChatsBySupplier(supplierId);
+
+  @override
+  Future<void> endChat(int chatId) => _repository.endChat(chatId);
 }

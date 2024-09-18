@@ -99,4 +99,100 @@ class ChatRepositoryImpl implements ChatRepository {
       await conn?.close();
     }
   }
+
+  @override
+  Future<List<Chat>> getChatsByUser(int userId) async {
+    late final MySqlConnection? conn;
+    try {
+      conn = await _connection.openConnection();
+      final query = '''
+        select 
+          c.id,
+          c.data_criacao,
+          c.status,
+          a.nome as agendamento_nome,
+          a.nome_pet as agendamento_nome_pet,
+          a.fornecedor_id,
+          a.usuario_id,
+          f.nome as fornec_nome,
+          f.logo
+
+        from chats as c
+        inner join agendamento a on a.id = c.agendamento_id
+        inner join fornecedor f on f.id = a.fornecedor_id
+        where a.usuario_id = ?
+        and c.status = 'A'
+        order by c.data_criacao
+      ''';
+
+      final result = await conn.query(query, [userId]);
+      return result
+          .map((c) => Chat(
+                id: c['id'],
+                user: c['usuario_id'],
+                supplier: Supplier(
+                  id: c['fornecedor_id'],
+                  name: c['fornec_nome'],
+                  logo: (c['logo'] as Blob?)?.toString(),
+                ),
+                name: c['agendamento_nome'],
+                petName: c['agendamento_nome_pet'],
+                status: c['status'],
+              ))
+          .toList();
+    } on MySqlException catch (e, s) {
+      _log.error('Erro ao buscar chats.', e, s);
+      throw DatabaseException(message: e.message);
+    } finally {
+      await conn?.close();
+    }
+  }
+
+  @override
+  Future<List<Chat>> getChatsBySupplier(int supplierId) async {
+    late final MySqlConnection? conn;
+    try {
+      conn = await _connection.openConnection();
+      final query = '''
+        select 
+          c.id,
+          c.data_criacao,
+          c.status,
+          a.nome as agendamento_nome,
+          a.nome_pet as agendamento_nome_pet,
+          a.fornecedor_id,
+          a.usuario_id,
+          f.nome as fornec_nome,
+          f.logo
+
+        from chats as c
+        inner join agendamento a on a.id = c.agendamento_id
+        inner join fornecedor f on f.id = a.fornecedor_id
+        where a.fornecedor_id = ?
+        and c.status = 'A'
+        order by c.data_criacao
+      ''';
+
+      final result = await conn.query(query, [supplierId]);
+      return result
+          .map((c) => Chat(
+                id: c['id'],
+                user: c['usuario_id'],
+                supplier: Supplier(
+                  id: c['fornecedor_id'],
+                  name: c['fornec_nome'],
+                  logo: (c['logo'] as Blob?)?.toString(),
+                ),
+                name: c['agendamento_nome'],
+                petName: c['agendamento_nome_pet'],
+                status: c['status'],
+              ))
+          .toList();
+    } on MySqlException catch (e, s) {
+      _log.error('Erro ao buscar chats.', e, s);
+      throw DatabaseException(message: e.message);
+    } finally {
+      await conn?.close();
+    }
+  }
 }

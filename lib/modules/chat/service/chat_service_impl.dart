@@ -54,4 +54,12 @@ class ChatServiceImpl implements ChatService {
         body: model.message,
         payload: payload);
   }
+
+  @override
+  Future<List<Chat>> getChatsByUser(int userId) =>
+      _repository.getChatsByUser(userId);
+
+  @override
+  Future<List<Chat>> getChatsBySupplier(int supplierId) =>
+      _repository.getChatsBySupplier(supplierId);
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cuidapet_my_api/application/exceptions/request_validation_exception.dart';
 import 'package:cuidapet_my_api/application/exceptions/user_exists_exception.dart';
 import 'package:cuidapet_my_api/application/exceptions/user_notfound_exception.dart';
 import 'package:cuidapet_my_api/application/helpers/jwt_helper.dart';
@@ -32,10 +33,11 @@ class AuthController {
       final loginModel = LoginModel(await request.readAsString());
       User user;
       if (!loginModel.socialLogin) {
+        loginModel.loginEmailValidate();
         user = await _userService.loginWithEmailAndPassword(
             loginModel.login, loginModel.password!, loginModel.supplierUser);
       } else {
-        // SOCIAL LOGIN (FACEBOOK, GOOGLE, APPLE)
+        loginModel.loginSocialValidate();
         user = await _userService.loginByEmailSocialKey(
           loginModel.login,
           loginModel.avatar,
@@ -50,6 +52,9 @@ class AuthController {
     } on UserNotfoundException {
       return Response.forbidden(
           jsonEncode({'message': 'Usuário ou senha incorretos'}));
+    } on RequestValidationException catch (e, s) {
+      _log.error('Erro de parametros obrigatórios não enviados', e, s);
+      return Response.badRequest(body: jsonEncode(e.errors));
     } catch (e, s) {
       _log.error('Erro ao logar usuário', e, s);
       return Response.internalServerError(
@@ -78,23 +83,32 @@ class AuthController {
 
   @Route('PATCH', '/confirm')
   Future<Response> confirmLogin(Request request) async {
-    final user = int.parse(request.headers['user']!);
-    final supplier = int.tryParse(request.headers['supplier'] ?? '');
-    final accessToken =
-        JwtHelper.generateJWT(user, supplier).replaceAll('Bearer ', '');
+    try {
+      final user = int.parse(request.headers['user']!);
+      final supplier = int.tryParse(request.headers['supplier'] ?? '');
+      final accessToken =
+          JwtHelper.generateJWT(user, supplier).replaceAll('Bearer ', '');
 
-    final inputModel = UserConfirmInputModel(
-      data: await request.readAsString(),
-      userId: user,
-      accessToken: accessToken,
-    );
+      final inputModel = UserConfirmInputModel(
+        data: await request.readAsString(),
+        userId: user,
+        accessToken: accessToken,
+      );
+      inputModel.validateRequest();
+      String refreshToken = await _userService.confirmLogin(inputModel);
 
-    String refreshToken = await _userService.confirmLogin(inputModel);
-
-    return Response.ok(jsonEncode({
-      'access_token': 'Bearer $accessToken',
-      'refresh_token': refreshToken,
-    }));
+      return Response.ok(jsonEncode({
+        'access_token': 'Bearer $accessToken',
+        'refresh_token': refreshToken,
+      }));
+    } on RequestValidationException catch (e, s) {
+      _log.error('Erro de parametros obrigatórios não enviados', e, s);
+      return Response.badRequest(body: jsonEncode(e.errors));
+    } catch (e, s) {
+      _log.error('Erro ao confirmar login.', e, s);
+      return Response.internalServerError(
+          body: jsonEncode({'message': 'Erro ao confirmar login.'}));
+    }
   }
 
   @Route.put('/refresh')

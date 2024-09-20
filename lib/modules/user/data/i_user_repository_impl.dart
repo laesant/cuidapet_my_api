@@ -201,7 +201,7 @@ class IUserRepositoryImpl implements IUserRepository {
       } else {
         final dataSql = result.first;
         return User(
-          id: dataSql['id'],
+          id: dataSql['id'] as int,
           email: dataSql['email'],
           registerType: dataSql['tipo_cadastro'],
           iosToken: (dataSql['ios_token'] as Blob?)?.toString(),

@@ -1,0 +1,10 @@
+{
+    "id": 1,
+    "email": "john@doe.com",
+    "tipo_cadastro": "App",
+    "ios_token": "ios_token",
+    "android_token": "android_token",
+    "refresh_token": "refresh_token",
+    "img_avatar": "img_avatar",
+    "fornecedor_id": 1
+}

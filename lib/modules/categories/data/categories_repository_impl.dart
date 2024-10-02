@@ -9,8 +9,8 @@ import './categories_repository.dart';
 
 @LazySingleton(as: CategoriesRepository)
 class CategoriesRepositoryImpl implements CategoriesRepository {
-  IDatabaseConnection _connection;
-  ILogger _log;
+  final IDatabaseConnection _connection;
+  final ILogger _log;
   CategoriesRepositoryImpl(
       {required IDatabaseConnection connection, required ILogger log})
       : _connection = connection,

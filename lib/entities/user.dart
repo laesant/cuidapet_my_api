@@ -78,4 +78,9 @@ class User {
         imageAvatar.hashCode ^
         supplierId.hashCode;
   }
+
+  @override
+  String toString() {
+    return 'User(id: $id, email: $email, password: $password, registerType: $registerType, iosToken: $iosToken, androidToken: $androidToken, refreshToken: $refreshToken, socialKey: $socialKey, imageAvatar: $imageAvatar, supplierId: $supplierId)';
+  }
 }

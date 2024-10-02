@@ -44,7 +44,7 @@ class IUserRepositoryImpl implements IUserRepository {
 
       final userId = result.insertId;
 
-      return user.copyWith(id: userId, password: null);
+      return user.copyWith(id: userId, password: '');
     } on MySqlException catch (e, s) {
       if (e.message.contains('usuario.email_UNIQUE')) {
         _log.error('Usuário já cadastrado na base de dados', e, s);

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:cuidapet_my_api/application/exceptions/database_exception.dart';
 import 'package:cuidapet_my_api/application/exceptions/user_exists_exception.dart';
@@ -10,7 +9,6 @@ import 'package:cuidapet_my_api/entities/user.dart';
 import 'package:cuidapet_my_api/modules/user/data/i_user_repository.dart';
 import 'package:cuidapet_my_api/modules/user/data/i_user_repository_impl.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:mysql1/mysql1.dart';
 import 'package:test/test.dart';
 
 import '../../../core/fixture/fixture_reader.dart';
@@ -123,12 +121,87 @@ void main() {
       //Arrange
       final mockException = MockMysqlException();
       when(() => mockException.message).thenReturn('usuario.email_UNIQUE');
-      database.mockQueryException(mockException);
+      database.mockQueryException(mockException: mockException);
       //Assert
       expect(
-        () => userRepository.createUser(User(email: 'email@email.com')),
+        () => userRepository
+            .createUser(User(email: 'email@email.com', password: '')),
         throwsA(isA<UserExistsException>()),
       );
+    });
+  });
+
+  group('Group test LoginWithEmailAndPassword', () {
+    test('Should login with email and password', () async {
+      //Arrange
+      final userFixtureDB = FixtureReader.getJsonData(
+          '/modules/user/data/fixture/login_with_email_and_password_success.json');
+      final mockResults = MockResults(userFixtureDB, [
+        'ios_token',
+        'android_token',
+        'refresh_token',
+        'img_avatar',
+      ]);
+
+      final email = 'email@email.com';
+      final password = 'password';
+      database.mockQuery(
+          mockResults, [email, CriptyHelper.generateSha256Hash(password)]);
+      final userData = jsonDecode(userFixtureDB);
+      final userExpected = User(
+        id: userData['id'],
+        email: userData['email'],
+        registerType: userData['tipo_cadastro'],
+        iosToken: userData['ios_token'],
+        androidToken: userData['android_token'],
+        refreshToken: userData['refresh_token'],
+        imageAvatar: userData['img_avatar'],
+        supplierId: userData['fornecedor_id'],
+      );
+      //Act
+      final user = await userRepository.loginWithEmailAndPassword(
+          email, password, false);
+      //Assert
+      expect(user, userExpected);
+      database.verifyConnectionClose();
+    });
+    test(
+        'Should login with email and password and return exception UserNotfoundException',
+        () async {
+      //Arrange
+
+      final mockResults = MockResults();
+
+      final email = 'email@email.com';
+      final password = 'password';
+      database.mockQuery(
+          mockResults, [email, CriptyHelper.generateSha256Hash(password)]);
+
+      //Assert
+      expect(
+          () =>
+              userRepository.loginWithEmailAndPassword(email, password, false),
+          throwsA(isA<UserNotfoundException>()));
+      await Future.delayed(Duration(milliseconds: 200));
+      database.verifyConnectionClose();
+    });
+
+    test(
+        'Should login with email and password and return exception DatabaseException',
+        () async {
+      //Arrange
+      final email = 'email@email.com';
+      final password = 'password';
+
+      database.mockQueryException(
+          params: [email, CriptyHelper.generateSha256Hash(password)]);
+      //Assert
+      expect(
+          () =>
+              userRepository.loginWithEmailAndPassword(email, password, false),
+          throwsA(isA<DatabaseException>()));
+      await Future.delayed(Duration(milliseconds: 200));
+      database.verifyConnectionClose();
     });
   });
 }

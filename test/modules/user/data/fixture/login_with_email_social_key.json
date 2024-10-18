@@ -1,0 +1,11 @@
+{
+    "id": 1,
+    "email": "email@email.com",
+    "tipo_cadastro": "APP",
+    "ios_token": "ios_token",
+    "android_token": "android_token",
+    "refresh_token": "refresh_token",
+    "img_avatar": "img_avatar",
+    "fornecedor_id": 1,
+    "social_id": "123"
+}

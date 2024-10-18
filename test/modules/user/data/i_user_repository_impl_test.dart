@@ -204,4 +204,141 @@ void main() {
       database.verifyConnectionClose();
     });
   });
+
+  group('Group test loginByEmailSocialKey', () {
+    test('Should login with email and social key with success', () async {
+      //Arrange
+      final userFixtureDB = FixtureReader.getJsonData(
+          '/modules/user/data/fixture/login_with_email_social_key.json');
+
+      final mockResults = MockResults(userFixtureDB, [
+        'ios_token',
+        'android_token',
+        'refresh_token',
+        'img_avatar',
+      ]);
+
+      final email = 'email@email.com';
+      final socialKey = '123';
+      final socialType = 'Facebook';
+
+      final params = [email];
+      database.mockQuery(mockResults, params);
+      final userData = jsonDecode(userFixtureDB);
+      final userExpected = User(
+          id: userData['id'],
+          email: userData['email'],
+          registerType: userData['tipo_cadastro'],
+          iosToken: userData['ios_token'],
+          androidToken: userData['android_token'],
+          refreshToken: userData['refresh_token'],
+          imageAvatar: userData['img_avatar'],
+          supplierId: userData['fornecedor_id']);
+      //Act
+      final user = await userRepository.loginByEmailSocialKey(
+          email, socialKey, socialType);
+      //Assert
+
+      expect(user, userExpected);
+      database.verifyQueryCalled(params: params);
+      database.verifyQueryNeverCalled(params: [
+        socialKey,
+        socialType,
+        userData['id'],
+      ]);
+      database.verifyConnectionClose();
+    });
+
+    test(
+        'Should login with email and social key with success and update social key',
+        () async {
+      //Arrange
+      final userFixtureDB = FixtureReader.getJsonData(
+          '/modules/user/data/fixture/login_with_email_social_key.json');
+
+      final mockResults = MockResults(userFixtureDB, [
+        'ios_token',
+        'android_token',
+        'refresh_token',
+        'img_avatar',
+      ]);
+
+      final email = 'email@email.com';
+      final socialKey = 'G-123';
+      final socialType = 'Google';
+
+      final userData = jsonDecode(userFixtureDB);
+
+      final params = [email];
+      final paramsUpdate = <Object>[
+        socialKey,
+        socialType,
+        userData['id'],
+      ];
+
+      database.mockQuery(mockResults, params);
+      database.mockQuery(mockResults, paramsUpdate);
+
+      final userExpected = User(
+          id: userData['id'],
+          email: userData['email'],
+          registerType: userData['tipo_cadastro'],
+          iosToken: userData['ios_token'],
+          androidToken: userData['android_token'],
+          refreshToken: userData['refresh_token'],
+          imageAvatar: userData['img_avatar'],
+          supplierId: userData['fornecedor_id']);
+      //Act
+      final user = await userRepository.loginByEmailSocialKey(
+          email, socialKey, socialType);
+      //Assert
+
+      expect(user, userExpected);
+      database.verifyQueryCalled(params: params);
+      database.verifyQueryCalled(params: paramsUpdate);
+      database.verifyConnectionClose();
+    });
+    test(
+        'Should login with email and social key and throw exception UserNotfoundException',
+        () async {
+      //Arrange
+
+      final mockResults = MockResults();
+
+      final email = 'email@email.com';
+      final socialKey = 'G-123';
+      final socialType = 'Google';
+      final params = [email];
+      database.mockQuery(mockResults, params);
+
+      //Assert
+      expect(
+          () => userRepository.loginByEmailSocialKey(
+              email, socialKey, socialType),
+          throwsA(isA<UserNotfoundException>()));
+      await Future.delayed(Duration(milliseconds: 200));
+      database.verifyQueryCalled(params: params);
+      database.verifyConnectionClose();
+    });
+    test(
+        'Should login with email and social key and throw exception DatabaseException',
+        () async {
+      //Arrange
+
+      final email = 'email@email.com';
+      final socialKey = 'G-123';
+      final socialType = 'Google';
+      final params = [email];
+      database.mockQueryException(params: params);
+
+      //Assert
+      expect(
+          () => userRepository.loginByEmailSocialKey(
+              email, socialKey, socialType),
+          throwsA(isA<DatabaseException>()));
+      await Future.delayed(Duration(milliseconds: 200));
+      database.verifyQueryCalled(params: params);
+      database.verifyConnectionClose();
+    });
+  });
 }

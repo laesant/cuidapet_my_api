@@ -3,8 +3,8 @@ import 'package:jaguar_jwt/jaguar_jwt.dart';
 
 class JwtHelper {
   JwtHelper._();
-  static final String _jwtSecret = ApplicationConfig.env['JWT_SECRET'] ??
-      ApplicationConfig.env['jwtSecret']!;
+  static final String _jwtSecret = ApplicationConfig.env!['JWT_SECRET'] ??
+      ApplicationConfig.env!['jwtSecret']!;
 
   static String generateJWT(int userId, int? supplierId) =>
       'Bearer ${issueJwtHS256(JwtClaim(
@@ -24,9 +24,9 @@ class JwtHelper {
 
   static String refreshToken(String accessToken) {
     final expiry =
-        int.parse(ApplicationConfig.env['refresh_token_expire_days']!);
+        int.parse(ApplicationConfig.env!['refresh_token_expire_days']!);
     final notBefore =
-        int.parse(ApplicationConfig.env['refresh_token_not_before_hours']!);
+        int.parse(ApplicationConfig.env!['refresh_token_not_before_hours']!);
 
     return 'Bearer ${issueJwtHS256(JwtClaim(
           issuer: accessToken,

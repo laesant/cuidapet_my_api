@@ -8,7 +8,7 @@ import 'package:get_it/get_it.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 class ApplicationConfig {
-  static late final DotEnv env;
+  static late DotEnv env;
   Future<void> loadConfigApplication(Router router) async {
     loadEnv();
     _loadDatabaseConfig(env);
@@ -17,9 +17,8 @@ class ApplicationConfig {
     _loadRoutersConfigure(router);
   }
 
-  static void loadEnv() {
-    env = DotEnv(includePlatformEnvironment: true)..load();
-  }
+  static void loadEnv() =>
+      env = DotEnv(includePlatformEnvironment: true)..load();
 
   void _loadDatabaseConfig(DotEnv env) {
     final databaseConfig = DatabaseConnectionConfiguration(

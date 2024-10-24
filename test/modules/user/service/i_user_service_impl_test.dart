@@ -9,7 +9,6 @@ import 'package:cuidapet_my_api/modules/user/service/i_user_service.dart';
 import 'package:cuidapet_my_api/modules/user/service/i_user_service_impl.dart';
 import 'package:cuidapet_my_api/modules/user/view_models/refresh_token_model.dart';
 import 'package:cuidapet_my_api/modules/user/view_models/user_refresh_token_input_model.dart';
-import 'package:dotenv/dotenv.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -125,7 +124,6 @@ void main() {
   group('Group test refreshToken', () {
     test('Should refresh token with success', () async {
       //Arrange
-      ApplicationConfig.env.clear();
       ApplicationConfig.env.addAll({
         'refresh_token_expire_days': '20',
         'refresh_token_not_before_hours': '0',
@@ -163,7 +161,7 @@ void main() {
         'Should try refresh token JWT but return validate error (JwtException) ',
         () async {
       //Arrange
-      // ApplicationConfig.env.clear();
+
       ApplicationConfig.env.addAll({
         'refresh_token_expire_days': '20',
         'refresh_token_not_before_hours': '0',

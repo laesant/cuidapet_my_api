@@ -1,9 +1,15 @@
+import 'package:cuidapet_my_api/application/config/application_config.dart';
+import 'package:cuidapet_my_api/application/exceptions/service_exception.dart';
 import 'package:cuidapet_my_api/application/exceptions/user_notfound_exception.dart';
+import 'package:cuidapet_my_api/application/helpers/jwt_helper.dart';
 import 'package:cuidapet_my_api/application/logger/i_logger.dart';
 import 'package:cuidapet_my_api/entities/user.dart';
 import 'package:cuidapet_my_api/modules/user/data/i_user_repository.dart';
 import 'package:cuidapet_my_api/modules/user/service/i_user_service.dart';
 import 'package:cuidapet_my_api/modules/user/service/i_user_service_impl.dart';
+import 'package:cuidapet_my_api/modules/user/view_models/refresh_token_model.dart';
+import 'package:cuidapet_my_api/modules/user/view_models/user_refresh_token_input_model.dart';
+import 'package:dotenv/dotenv.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -18,6 +24,7 @@ void main() {
     log = MockLogger();
     userService = IUserServiceImpl(userRepository: userRepository, log: log);
     registerFallbackValue(User());
+    ApplicationConfig.loadEnv();
   });
 
   group('Group test loginWithEmailAndPassword', () {
@@ -112,6 +119,67 @@ void main() {
       verify(() => userRepository.loginByEmailSocialKey(
           email, socialKey, socialType)).called(1);
       verify(() => userRepository.createUser(any())).called(1);
+    });
+  });
+
+  group('Group test refreshToken', () {
+    test('Should refresh token with success', () async {
+      //Arrange
+      ApplicationConfig.env.clear();
+      ApplicationConfig.env.addAll({
+        'refresh_token_expire_days': '20',
+        'refresh_token_not_before_hours': '0',
+        'jwtSecret': '123',
+      });
+      final userId = 1;
+      final accessToken = JwtHelper.generateJWT(userId, null);
+      final refresToken = JwtHelper.refreshToken(accessToken);
+      final model = UserRefreshTokenInputModel(
+          '{"refresh_token": "$refresToken"}',
+          user: userId,
+          accessToken: accessToken);
+      when(() => userRepository.updateRefreshToken(any()))
+          .thenAnswer((invocation) async => invocation);
+      //Act
+      final responseToken = await userService.refreshToken(model);
+      //Assert
+      expect(responseToken, isA<RefreshTokenModel>());
+      expect(responseToken.accessToken, isNotEmpty);
+      expect(responseToken.refreshToken, isNotEmpty);
+      verify(() => userRepository.updateRefreshToken(any())).called(1);
+    });
+
+    test('Should try refresh token JWT but return validate error (Bearer) ',
+        () async {
+      //Arrange
+      final model = UserRefreshTokenInputModel('{"refresh_token": ""}',
+          user: 1, accessToken: 'accessToken');
+
+      //Assert
+      expect(() => userService.refreshToken(model),
+          throwsA(isA<ServiceException>()));
+    });
+    test(
+        'Should try refresh token JWT but return validate error (JwtException) ',
+        () async {
+      //Arrange
+      // ApplicationConfig.env.clear();
+      ApplicationConfig.env.addAll({
+        'refresh_token_expire_days': '20',
+        'refresh_token_not_before_hours': '0',
+        'jwtSecret': '123',
+      });
+      final userId = 1;
+      final accessToken = JwtHelper.generateJWT(userId, null);
+      final refreshToken = JwtHelper.refreshToken('123');
+      final model = UserRefreshTokenInputModel(
+          '{"refresh_token": "$refreshToken"}',
+          user: 1,
+          accessToken: accessToken);
+
+      //Assert
+      expect(() => userService.refreshToken(model),
+          throwsA(isA<ServiceException>()));
     });
   });
 }

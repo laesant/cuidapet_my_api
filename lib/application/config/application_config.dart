@@ -10,14 +10,16 @@ import 'package:shelf_router/shelf_router.dart';
 class ApplicationConfig {
   static late final DotEnv env;
   Future<void> loadConfigApplication(Router router) async {
-    env = _loadEnv();
+    loadEnv();
     _loadDatabaseConfig(env);
     _configLogger();
     _loadDependencies();
     _loadRoutersConfigure(router);
   }
 
-  DotEnv _loadEnv() => DotEnv(includePlatformEnvironment: true)..load();
+  static void loadEnv() {
+    env = DotEnv(includePlatformEnvironment: true)..load();
+  }
 
   void _loadDatabaseConfig(DotEnv env) {
     final databaseConfig = DatabaseConnectionConfiguration(
